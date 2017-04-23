@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import com.sun.corba.se.impl.interceptors.SlotTable;
 import com.sun.org.apache.xerces.internal.impl.dv.ValidatedInfo;
 
 public class WordPuzzle {
@@ -120,13 +121,83 @@ public class WordPuzzle {
 	
 	
 	public static int applyGuess(char guess, String solution, char[] puzzle){ // Q - 7
-		// replace with your code
-		return 0;
+		int numOfUpdates = 0; // init the num of updated chars to zero
+		for(int i=0;i<solution.length();i++){ // loop all chars in the solution
+			if(guess == solution.charAt(i) && puzzle[i] == HIDDEN_CHAR){ // if the current char in solution matches the guess and the puzzle char in that location is hidden, update the puzzle and increment the number of updates chars.
+				puzzle[i] = guess;
+				numOfUpdates++;
+			}
+		}
+		return numOfUpdates;
 	}
 
 
 	public static void main(String[] args) throws Exception{ //Q - 8
-		// add your code here
+		Scanner input_file_name = new Scanner(System.in); // user input for file name
+		String vocabFile = input_file_name.next(); // make it into a string
+		File f = new File(vocabFile); // set the file to be opened
+		if(!f.exists()){ // check to see if the file exists and exit if not
+			System.out.println("File does not exists! Exit");
+			System.exit(0);
+		}
+		String[] vocabulary = scanVocabulary(new Scanner(f)); // create a vocabulary from the file
+		if(vocabulary.length == 0){ // if the file is empty, exit
+			System.out.println("The Vocabulary is empty! Exit");
+			System.exit(0);
+		}
+		printReadVocabulary(vocabFile, vocabulary.length);
+		System.out.println(Arrays.toString(vocabulary));
+		//i
+		printSettingsMessage();
+		char[] puzzle;
+		boolean validPuzzle = false;
+		boolean solved = false;
+		do{ // while the puzzle is not valid, do: get an input puzzle, check if its valid and print the appropriate error
+			printEnterPuzzleMessage();
+			Scanner input_puzzle = new Scanner(System.in);
+			puzzle = input_puzzle.next().toCharArray();
+			if(!isLegalPuzzleStructure(puzzle)){
+				printIllegalPuzzleMessage();
+			}
+			else if(checkSingleSolution(puzzle, vocabulary) == null){
+				printIllegalSolutionsNumberMessage();
+			}
+			else{
+				validPuzzle = true;
+			}
+		}while(validPuzzle == false);
+		
+		//ii
+		printGameStageMessage();
+		int numOfguesses = countHiddenInPuzzle(puzzle) + 3; // num of hidden + 3
+		int numOfUpdates = 0;
+		String solution = checkSingleSolution(puzzle, vocabulary); // find the solution for the puzzle in the vocabulary.
+		do{ // while we have guesses and we didn't sovle the puzzle, do: get a guess form the user, check if its correct or not and print the appropriate message.
+			printPuzzle(puzzle);
+			printEnterYourGuessMessage();
+			Scanner input_char = new Scanner(System.in);
+			char guessChar = input_char.next().charAt(0);
+			numOfguesses--;
+			numOfUpdates = applyGuess(guessChar, solution, puzzle);
+			if(countHiddenInPuzzle(puzzle) == 0){
+				solved = true;
+			}
+			else if(numOfUpdates > 0){
+				printCorrectGuess(numOfguesses);
+			}
+			else{
+				printWrongGuess(numOfguesses);
+			}
+		}while(numOfguesses > 0 && solved == false);
+		if(solved == true){
+			printWinMessage();
+		}
+		else{
+			printGameOver();
+		}
+		
+		///resources/hw4/vocabulary.txt
+		///resources/hw4/blackbird.txt
 	}
 
 	/**
