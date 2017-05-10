@@ -2,9 +2,12 @@ package il.ac.tau.cs.sw1.ex5;
 
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -105,7 +108,30 @@ public class BigramModel {
 	 * @pre: fileName is a legal file path
 	 */
 	public void saveModel(String fileName) throws IOException{ // Q-3
-		// add your code here
+		System.out.println(Arrays.toString(this.mVocabulary));
+		for(int i=0;i<this.mBigramCounts[0].length;i++)
+			System.out.println(Arrays.toString(this.mBigramCounts[i]));
+		
+		FileOutputStream vocFile = new FileOutputStream(fileName+VOC_FILE_SUFFIX);
+		FileOutputStream countsFile = new FileOutputStream(fileName+COUNTS_FILE_SUFFIX);
+		BufferedWriter bw1 = new BufferedWriter(new OutputStreamWriter(vocFile));
+		bw1.write(this.mVocabulary.length + " words\n");
+		for(int i=0;i<this.mVocabulary.length;i++){
+			bw1.write(i + "," + this.mVocabulary[i]);
+			if(i != this.mVocabulary.length-1){
+				bw1.write("\n");
+			}
+		}
+		bw1.close();
+		BufferedWriter bw2 = new BufferedWriter(new OutputStreamWriter(countsFile));
+		for(int x=0;x<this.mBigramCounts.length;x++){
+			for(int y=0;y<this.mBigramCounts[x].length;y++){
+				if(this.mBigramCounts[x][y] != 0){
+					bw2.write(x + "," + y + ":" + this.mBigramCounts[x][y] + "\n");
+				}
+			}
+		}
+		bw2.close();
 	}
 	
 	
